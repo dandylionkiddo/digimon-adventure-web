@@ -30,69 +30,75 @@
         radial-gradient(ellipse at 20% 0%, rgba(59,130,246,0.15) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 100%, rgba(255,107,26,0.12) 0%, transparent 50%);
     }
-    #app { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
-    header.game-header { text-align: center; padding: 20px 0 8px; }
+    #app { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 14px; }
+    header.game-header { text-align: center; padding: 16px 0 4px; }
     header.game-header h1 {
-      font-size: 1.8rem; letter-spacing: 0.05em;
+      font-size: 1.85rem; letter-spacing: 0.06em;
       background: linear-gradient(90deg, #ff6b1a, #3b82f6);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    header.game-header p { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+    header.game-header p { color: var(--muted); font-size: 0.88rem; margin-top: 4px; }
     #status {
-      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-      padding: 14px 18px; display: grid; grid-template-columns: auto 1fr 1fr;
-      gap: 10px 16px; font-size: 0.9rem; align-items: center;
+      background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px 16px; display: grid; grid-template-columns: auto 1fr auto;
+      gap: 12px 16px; align-items: center;
     }
-    #status .label { color: var(--muted); font-size: 0.75rem; }
-    #status .value { font-weight: 600; }
     #st-partner-img {
-      width: 56px; height: 56px; object-fit: contain; border-radius: 10px;
+      width: 64px; height: 64px; object-fit: contain; border-radius: 12px;
       background: #0f1525; border: 1px solid var(--border);
     }
-    .hp-bar { height: 10px; background: #1a2338; border-radius: 5px; overflow: hidden; margin-top: 4px; }
-    .hp-fill { height: 100%; background: linear-gradient(90deg, #22c55e, #4ade80); border-radius: 5px; transition: width 0.4s ease; }
+    #status .label { color: var(--muted); font-size: 0.72rem; margin-bottom: 2px; }
+    #status .value { font-weight: 600; font-size: 0.92rem; }
+    .hp-bar { height: 11px; background: #1a2338; border-radius: 6px; overflow: hidden; margin-top: 6px; }
+    .hp-fill { height: 100%; background: linear-gradient(90deg, #22c55e, #4ade80); border-radius: 6px; transition: width 0.35s ease; }
     .hp-fill.low { background: linear-gradient(90deg, #ef4444, #f87171); }
-    .panel {
-      background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px;
+    .stat-side { text-align: right; min-width: 110px; }
+    .stat-pill {
+      display: inline-block; background: #1a2338; border: 1px solid var(--border);
+      border-radius: 8px; padding: 4px 10px; font-size: 0.8rem; margin-top: 4px;
     }
-    #story { min-height: 120px; white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; }
+    .stat-pill.heal { border-color: var(--success); color: #86efac; }
+    .crest-list { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; margin-top: 6px; }
+    .crest { background: #1a2338; border: 1px solid var(--border); border-radius: 6px; padding: 2px 7px; font-size: 0.7rem; }
+    .crest.owned { border-color: var(--accent); color: var(--accent); }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+    #story { min-height: 110px; white-space: pre-wrap; font-size: 0.95rem; line-height: 1.65; }
     #story .chapter-title { display: block; color: var(--accent); font-weight: 700; margin-bottom: 8px; font-size: 1.05rem; }
     .highlight { color: var(--accent); font-weight: 600; }
     .enemy-name { color: var(--danger); font-weight: 600; }
-    #battle-area { display: none; flex-direction: column; gap: 14px; }
+    #battle-area { display: none; flex-direction: column; gap: 12px; }
     .battle-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
     .digimon-card {
-      flex: 1; text-align: center; background: #0d1324; border-radius: 12px;
-      padding: 12px; border: 1px solid var(--border);
+      flex: 1; text-align: center; background: #0d1324; border-radius: 14px;
+      padding: 14px 10px; border: 1px solid var(--border);
     }
-    .digimon-card img {
-      width: 110px; height: 110px; object-fit: contain; background: #0a0e1a; border-radius: 10px;
-    }
+    .digimon-card.ally { border-color: rgba(34,197,94,0.35); }
+    .digimon-card.enemy { border-color: rgba(239,68,68,0.35); }
+    .digimon-card img { width: 112px; height: 112px; object-fit: contain; background: #0a0e1a; border-radius: 10px; }
     .digimon-card .name { font-weight: 700; margin-top: 8px; font-size: 0.95rem; }
-    .digimon-card .stage { color: var(--muted); font-size: 0.75rem; }
+    .digimon-card .stage { color: var(--muted); font-size: 0.75rem; margin-top: 2px; }
+    .vs-badge { font-size: 1.1rem; font-weight: 800; color: var(--muted); }
     #log {
-      max-height: 100px; overflow-y: auto; font-size: 0.8rem; color: var(--muted);
-      border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px;
+      max-height: 96px; overflow-y: auto; font-size: 0.8rem; color: var(--muted);
+      border-top: 1px solid var(--border); padding-top: 8px; line-height: 1.5;
     }
     #actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
     button {
       background: var(--accent2); color: white; border: none; border-radius: 10px;
       padding: 12px 18px; font-size: 0.9rem; cursor: pointer; font-family: inherit;
-      transition: transform 0.1s, opacity 0.2s;
+      font-weight: 600; transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s;
     }
-    button:hover { opacity: 0.92; }
+    button:hover { opacity: 0.93; }
     button:active { transform: scale(0.97); }
-    button.primary { background: var(--accent); }
-    button.success { background: var(--success); }
-    .crest-list { display: flex; flex-wrap: wrap; gap: 6px; }
-    .crest {
-      background: #1a2338; border: 1px solid var(--border); border-radius: 6px;
-      padding: 2px 8px; font-size: 0.75rem;
-    }
-    .crest.owned { border-color: var(--accent); color: var(--accent); }
+    button.primary { background: linear-gradient(135deg, #ff6b1a, #f59e0b); box-shadow: 0 4px 14px rgba(255,107,26,0.25); }
+    button.success { background: linear-gradient(135deg, #16a34a, #22c55e); box-shadow: 0 4px 14px rgba(34,197,94,0.2); }
+    button.evolve { background: linear-gradient(135deg, #2563eb, #7c3aed); box-shadow: 0 4px 14px rgba(59,130,246,0.2); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
     @media (max-width: 520px) {
       .battle-row { flex-direction: column; }
       #status { grid-template-columns: auto 1fr; }
+      .stat-side { grid-column: 1 / -1; text-align: left; }
+      .crest-list { justify-content: flex-start; }
     }
   </style>
 </head>
@@ -102,7 +108,6 @@
       <h1>디지몬 어드벤처</h1>
       <p>1999 · 선택지와 전투로 이어가는 어드벤처</p>
     </header>
-
     <div id="status">
       <img id="st-partner-img" src="https://digimon.net/cimages/digimon/agumon.jpg" alt="">
       <div>
@@ -110,24 +115,24 @@
         <div class="value" id="st-partner">Agumon (성장기)</div>
         <div class="hp-bar"><div class="hp-fill" id="st-hp" style="width:100%"></div></div>
       </div>
-      <div>
-        <div class="label">문장</div>
+      <div class="stat-side">
+        <div class="label">회복 아이템</div>
+        <div class="stat-pill heal" id="st-potions">💊 × 3</div>
+        <div class="label" style="margin-top:8px">문장</div>
         <div class="crest-list" id="st-crests"></div>
       </div>
     </div>
-
     <div class="panel" id="story">로딩 중...</div>
-
     <div class="panel" id="battle-area">
       <div class="battle-row">
-        <div class="digimon-card">
+        <div class="digimon-card ally">
           <img id="ally-img" src="" alt="">
           <div class="name" id="ally-name">-</div>
           <div class="stage" id="ally-stage">-</div>
           <div class="hp-bar"><div class="hp-fill" id="ally-hp" style="width:100%"></div></div>
         </div>
-        <div style="font-size:1.5rem;color:var(--muted);font-weight:700">VS</div>
-        <div class="digimon-card">
+        <div class="vs-badge">VS</div>
+        <div class="digimon-card enemy">
           <img id="enemy-img" src="" alt="">
           <div class="name enemy-name" id="enemy-name">-</div>
           <div class="stage" id="enemy-stage">-</div>
@@ -136,20 +141,14 @@
       </div>
       <div id="log"></div>
     </div>
-
     <div id="actions"></div>
   </div>
-
   <script>
     const IMG = {
       Agumon: "https://digimon.net/cimages/digimon/agumon.jpg",
       Greymon: "https://digimon.net/cimages/digimon/greymon.jpg",
       MetalGreymon: "https://digimon.net/cimages/digimon/metalgreymon.jpg",
       WarGreymon: "https://digimon.net/cimages/digimon/wargreymon.jpg",
-      Gabumon: "https://digimon.net/cimages/digimon/gabumon.jpg",
-      Garurumon: "https://digimon.net/cimages/digimon/garurumon.jpg",
-      WereGarurumon: "https://digimon.net/cimages/digimon/weregarurumon.jpg",
-      MetalGarurumon: "https://digimon.net/cimages/digimon/metalgarurumon.jpg",
       Devimon: "https://digimon.net/cimages/digimon/devimon.jpg",
       Etemon: "https://digimon.net/cimages/digimon/etemon.jpg",
       Myotismon: "https://digimon.net/cimages/digimon/myotismon.jpg",
@@ -166,7 +165,6 @@
       Andromon: "https://digimon.net/cimages/digimon/andromon.jpg",
       default: "https://digimon.net/cimages/digimon/agumon.jpg"
     };
-
     const CRESTS = ["용기", "우정", "사랑", "지식", "성실", "희망", "빛", "기적"];
     const EVOLUTIONS = {
       Agumon: [
@@ -175,7 +173,6 @@
         { name: "WarGreymon", stage: "궁극체", hp: 400, atk: 100, req: "용기" }
       ]
     };
-
     const game = {
       chapter: 0,
       partner: { name: "Agumon", stage: "성장기", hp: 100, maxHp: 100, atk: 25 },
@@ -185,7 +182,6 @@
       log: [],
       potions: 3
     };
-
     function setStory(html) { document.getElementById("story").innerHTML = html; }
     function clearActions() { document.getElementById("actions").innerHTML = ""; }
     function addButton(label, fn, cls) {
@@ -194,16 +190,17 @@
       if (cls) b.className = cls;
       b.onclick = fn;
       document.getElementById("actions").appendChild(b);
+      return b;
     }
-
     function updateStatus() {
       const p = game.partner;
-      document.getElementById("st-partner").textContent = `${p.name} (${p.stage})  HP ${p.hp}/${p.maxHp}`;
+      document.getElementById("st-partner").textContent = p.name + " (" + p.stage + ")  HP " + p.hp + "/" + p.maxHp;
       document.getElementById("st-partner-img").src = IMG[p.name] || IMG.default;
       const pct = Math.max(0, (p.hp / p.maxHp) * 100);
       const bar = document.getElementById("st-hp");
       bar.style.width = pct + "%";
       bar.classList.toggle("low", pct < 30);
+      document.getElementById("st-potions").textContent = "💊 × " + game.potions;
       const el = document.getElementById("st-crests");
       el.innerHTML = "";
       CRESTS.forEach(c => {
@@ -213,43 +210,43 @@
         el.appendChild(s);
       });
     }
-
     function showBattle(show) {
       document.getElementById("battle-area").style.display = show ? "flex" : "none";
       game.inBattle = show;
     }
-
     function logMsg(m) {
       game.log.push(m);
       if (game.log.length > 8) game.log.shift();
       document.getElementById("log").innerHTML = game.log.join("<br>");
     }
-
     function updateBattleUI() {
       const a = game.partner, e = game.enemy;
       document.getElementById("ally-img").src = IMG[a.name] || IMG.default;
       document.getElementById("ally-name").textContent = a.name;
       document.getElementById("ally-stage").textContent = a.stage;
       document.getElementById("ally-hp").style.width = Math.max(0, a.hp / a.maxHp * 100) + "%";
+      document.getElementById("ally-hp").classList.toggle("low", a.hp / a.maxHp < 0.3);
       document.getElementById("enemy-img").src = IMG[e.name] || IMG.default;
       document.getElementById("enemy-name").textContent = e.name;
       document.getElementById("enemy-stage").textContent = e.stage || "";
       document.getElementById("enemy-hp").style.width = Math.max(0, e.hp / e.maxHp * 100) + "%";
     }
-
+    function renderBattleButtons(onWin) {
+      clearActions();
+      addButton("⚔️ 공격", () => playerAttack(onWin), "primary");
+      addButton("✨ 진화 시도", () => tryEvolve(), "evolve");
+      const healBtn = addButton("💚 회복하기 (" + game.potions + ")", () => useHeal(onWin), "success");
+      if (game.potions <= 0) healBtn.disabled = true;
+      if (game.crests.size) addButton("🏅 문장 사용", () => useCrest(onWin), "success");
+    }
     function startBattle(enemy, onWin) {
-      game.enemy = { ...enemy, maxHp: enemy.hp };
+      game.enemy = Object.assign({}, enemy, { maxHp: enemy.hp });
       game.log = [];
       showBattle(true);
       updateBattleUI();
       logMsg(enemy.name + "이(가) 나타났다!");
-      clearActions();
-      addButton("공격", () => playerAttack(onWin), "primary");
-      addButton("진화 시도", () => tryEvolve());
-      addButton("회복하기 (" + game.potions + ")", () => useHeal(onWin), "success");
-      if (game.crests.size) addButton("문장 사용", () => useCrest(onWin), "success");
+      renderBattleButtons(onWin);
     }
-
     function playerAttack(onWin) {
       if (!game.inBattle) return;
       const dmg = game.partner.atk + Math.floor(Math.random() * 10);
@@ -263,7 +260,6 @@
       }
       enemyTurn(onWin);
     }
-
     function enemyTurn(onWin) {
       const dmg = game.enemy.atk + Math.floor(Math.random() * 8);
       game.partner.hp = Math.max(0, game.partner.hp - dmg);
@@ -275,7 +271,6 @@
         endBattle(false, onWin);
       }
     }
-
     function tryEvolve() {
       const list = EVOLUTIONS.Agumon;
       const stages = ["성장기", "성숙기", "완전체", "궁극체"];
@@ -293,39 +288,26 @@
       updateStatus();
       updateBattleUI();
     }
-
     function useHeal(onWin) {
-      if (game.potions <= 0) {
-        logMsg("회복 아이템이 없다...");
-        return;
-      }
+      if (game.potions <= 0) { logMsg("회복 아이템이 없다..."); return; }
       game.potions -= 1;
       const heal = 50 + Math.floor(Math.random() * 30);
       game.partner.hp = Math.min(game.partner.maxHp, game.partner.hp + heal);
-      logMsg("회복하기! HP " + heal + " 회복 (남은 횟수: " + game.potions + ")");
+      logMsg("💚 회복하기! HP " + heal + " 회복 (남은 횟수: " + game.potions + ")");
       updateStatus();
       updateBattleUI();
-      clearActions();
-      addButton("공격", () => playerAttack(onWin), "primary");
-      addButton("진화 시도", () => tryEvolve());
-      addButton("회복하기 (" + game.potions + ")", () => useHeal(onWin), "success");
-      if (game.crests.size) addButton("문장 사용", () => useCrest(onWin), "success");
+      renderBattleButtons(onWin);
       enemyTurn(onWin);
     }
-
     function useCrest(onWin) {
-      if (!game.crests.size) {
-        logMsg("가진 문장이 없다.");
-        return;
-      }
+      if (!game.crests.size) { logMsg("가진 문장이 없다."); return; }
       const heal = 40 + Math.floor(Math.random() * 20);
       game.partner.hp = Math.min(game.partner.maxHp, game.partner.hp + heal);
-      logMsg("문장의 힘으로 HP " + heal + " 회복!");
+      logMsg("🏅 문장의 힘으로 HP " + heal + " 회복!");
       updateStatus();
       updateBattleUI();
       enemyTurn(onWin);
     }
-
     function endBattle(won, onWin) {
       game.inBattle = false;
       clearActions();
@@ -336,7 +318,6 @@
         addButton("처음부터 다시", () => location.reload(), "primary");
       }
     }
-
     const chapters = [
       () => {
         setStory("<span class=\"chapter-title\">프롤로그</span>여름 캠프장. 하늘에서 이상한 장치가 떨어진다.\n\n태일, 아구몬과 함께 디지털 월드로 향한다.\n\n<span class=\"highlight\">파일섬</span>에 도착했다.");
@@ -456,11 +437,7 @@
         }), "primary");
       }
     ];
-
-    function runChapter() {
-      updateStatus();
-      if (chapters[game.chapter]) chapters[game.chapter]();
-    }
+    function runChapter() { updateStatus(); if (chapters[game.chapter]) chapters[game.chapter](); }
     function startGame() { updateStatus(); runChapter(); }
     startGame();
   </script>
