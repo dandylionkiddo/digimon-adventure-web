@@ -45,7 +45,6 @@
     }
     #status .label { color: var(--muted); font-size: 0.75rem; }
     #status .value { font-weight: 600; }
-    #status .full { grid-column: 1 / -1; }
     #st-partner-img {
       width: 56px; height: 56px; object-fit: contain; border-radius: 10px;
       background: #0f1525; border: 1px solid var(--border);
@@ -183,7 +182,8 @@
       crests: new Set(),
       inBattle: false,
       enemy: null,
-      log: []
+      log: [],
+      potions: 3
     };
 
     function setStory(html) { document.getElementById("story").innerHTML = html; }
@@ -246,6 +246,7 @@
       clearActions();
       addButton("공격", () => playerAttack(onWin), "primary");
       addButton("진화 시도", () => tryEvolve());
+      addButton("회복하기 (" + game.potions + ")", () => useHeal(onWin), "success");
       if (game.crests.size) addButton("문장 사용", () => useCrest(onWin), "success");
     }
 
@@ -293,7 +294,30 @@
       updateBattleUI();
     }
 
+    function useHeal(onWin) {
+      if (game.potions <= 0) {
+        logMsg("회복 아이템이 없다...");
+        return;
+      }
+      game.potions -= 1;
+      const heal = 50 + Math.floor(Math.random() * 30);
+      game.partner.hp = Math.min(game.partner.maxHp, game.partner.hp + heal);
+      logMsg("회복하기! HP " + heal + " 회복 (남은 횟수: " + game.potions + ")");
+      updateStatus();
+      updateBattleUI();
+      clearActions();
+      addButton("공격", () => playerAttack(onWin), "primary");
+      addButton("진화 시도", () => tryEvolve());
+      addButton("회복하기 (" + game.potions + ")", () => useHeal(onWin), "success");
+      if (game.crests.size) addButton("문장 사용", () => useCrest(onWin), "success");
+      enemyTurn(onWin);
+    }
+
     function useCrest(onWin) {
+      if (!game.crests.size) {
+        logMsg("가진 문장이 없다.");
+        return;
+      }
       const heal = 40 + Math.floor(Math.random() * 20);
       game.partner.hp = Math.min(game.partner.maxHp, game.partner.hp + heal);
       logMsg("문장의 힘으로 HP " + heal + " 회복!");
@@ -348,8 +372,8 @@
           setStory("메라몬을 물리쳤다. 공장에서 <span class=\"enemy-name\">안드로몬</span>이 폭주한다.");
           clearActions();
           addButton("안드로몬과 전투", () => startBattle({ name: "Andromon", stage: "완전체", hp: 160, atk: 32 }, () => {
-            game.crests.add("용기"); updateStatus();
-            setStory("안드로몬을 진정시켰다.\n<span class=\"highlight\">>>> 용기의 문장을 손에 넣었다!</span>");
+            game.crests.add("용기"); game.potions += 2; updateStatus();
+            setStory("안드로몬을 진정시켰다.\n<span class=\"highlight\">>>> 용기의 문장을 손에 넣었다!</span>\n(회복 아이템 +2)");
             clearActions();
             addButton("다음으로", () => { game.chapter = 4; runChapter(); }, "primary");
           }), "primary");
@@ -368,7 +392,7 @@
       },
       () => {
         setStory("<span class=\"chapter-title\">서버 대륙</span>독재자 <span class=\"enemy-name\">에테몬</span>이 네트워크를 장악하고 있다.\n<span class=\"highlight\">>>> 우정의 문장을 찾았다!</span>");
-        game.crests.add("우정"); updateStatus();
+        game.crests.add("우정"); game.potions += 2; updateStatus();
         clearActions();
         addButton("에테몬과 전투", () => startBattle({ name: "Etemon", stage: "완전체", hp: 250, atk: 50 }, () => {
           game.partner = { name: "MetalGreymon", stage: "완전체", hp: 280, maxHp: 280, atk: 70 };
@@ -380,7 +404,7 @@
       },
       () => {
         setStory("<span class=\"chapter-title\">현실 세계</span>밤의 지배자 <span class=\"enemy-name\">묘티스몬</span>.\n<span class=\"highlight\">>>> 빛의 문장을 얻었다!</span>");
-        game.crests.add("빛"); updateStatus();
+        game.crests.add("빛"); game.potions += 2; updateStatus();
         clearActions();
         addButton("묘티스몬과 전투", () => startBattle({ name: "Myotismon", stage: "완전체", hp: 300, atk: 55 }, () => {
           setStory("묘티스몬이 <span class=\"enemy-name\">베놈묘티스몬</span>으로 진화한다!");
