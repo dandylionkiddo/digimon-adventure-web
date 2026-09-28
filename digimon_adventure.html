@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>디지몬 어드벤처</title>
-</head>
+<head><meta charset="UTF-8"/><title>디지몬 어드벤처</title></head>
 <body>
-<p id="msg" style="font-family:sans-serif;text-align:center;margin-top:40vh;color:#888">게임 파일을 로드하는 중입니다. 전체 소스는 저장소에 추가 예정입니다.</p>
-<p style="text-align:center"><a href="https://github.com/dandylionkiddo/digimon-adventure-web">저장소</a></p>
+<p id="m" style="font-family:sans-serif;text-align:center;margin-top:30vh">게임 로딩 중...</p>
 <script>
-// Full game will be added - for now open the local digimon_adventure.html from the project folder
-console.log('Digimon Adventure - please use the local HTML file for full experience');
+const N = 8;
+const BASE = "https://raw.githubusercontent.com/dandylionkiddo/digimon-adventure-web/main/chunks/";
+async function load() {
+  const parts = [];
+  for (let i = 0; i < N; i++) {
+    const r = await fetch(BASE + "part" + i + ".txt");
+    if (!r.ok) throw new Error("chunk " + i + " failed");
+    parts.push(await r.text());
+  }
+  const html = parts.join("");
+  document.open();
+  document.write(html);
+  document.close();
+}
+load().catch(e => { document.getElementById("m").textContent = "로드 실패: " + e; });
 </script>
 </body>
 </html>
