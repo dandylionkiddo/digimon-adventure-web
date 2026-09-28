@@ -1,28 +1,776 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>디지몬 어드벤처</title></head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>디지몬 어드벤처</title>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --panel: #12182b;
+      --accent: #ff6b1a;
+      --accent2: #3b82f6;
+      --text: #e8eef7;
+      --muted: #8b9bb4;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --border: #1e2a44;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px;
+      line-height: 1.5;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    header {
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    #story {
+      min-height: 140px;
+      white-space: pre-wrap;
+      font-size: 0.95rem;
+    }
+
+    .highlight { color: var(--accent); font-weight: 600; }
+    .enemy-name { color: var(--danger); }
+    .ally-name { color: var(--success); }
+
+    #status {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
+    .stat-block h3 {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .hp-bar {
+      height: 10px;
+      background: #1a2338;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .hp-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--success), #86efac);
+      transition: width 0.3s ease;
+    }
+
+    .hp-fill.low { background: linear-gradient(90deg, var(--danger), #fca5a5); }
+
+    #battle-area {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .battle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .digimon-card {
+      flex: 1;
+      text-align: center;
+      background: #0d1324;
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .digimon-card img {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      image-rendering: pixelated;
+      background: #0a0e1a;
+      border-radius: 8px;
+    }
+
+    .digimon-card .name {
+      font-weight: 600;
+      margin-top: 6px;
+      font-size: 0.9rem;
+    }
+
+    .digimon-card .stage {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    #actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    button {
+      background: var(--accent2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    button.primary { background: var(--accent); }
+    button.danger { background: var(--danger); }
+    button.success { background: var(--success); }
+
+    #log {
+      max-height: 120px;
+      overflow-y: auto;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+
+    .crest-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .crest {
+      background: #1a2338;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+    }
+
+    .crest.owned { border-color: var(--accent); color: var(--accent); }
+
+    @media (max-width: 500px) {
+      .battle-row { flex-direction: column; }
+      #status { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
 <body>
-<p id="m" style="font-family:sans-serif;text-align:center;margin-top:30vh;color:#666">게임 로딩 중...</p>
-<script>
-(async () => {
-  const base = "https://raw.githubusercontent.com/dandylionkiddo/digimon-adventure-web/main/parts/";
-  let b64 = "";
-  for (let i = 0; i < 4; i++) {
-    const r = await fetch(base + "c" + i + ".b64");
-    if (!r.ok) throw new Error("c" + i + ": " + r.status);
-    b64 += (await r.text()).replace(/\s/g, "");
-  }
-  while (b64.length % 4) b64 += "=";
-  const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-  const ds = new DecompressionStream("gzip");
-  const stream = new Blob([bin]).stream().pipeThrough(ds);
-  const html = await new Response(stream).text();
-  document.open();
-  document.write(html);
-  document.close();
-})().catch(e => {
-  document.getElementById("m").innerHTML = "로드 실패: " + e;
-});
-</script>
+  <div id="app">
+    <header>
+      <h1>디지몬 어드벤처</h1>
+      <p>1999 · 선택지와 전투로 이어가는 어드벤처</p>
+    </header>
+
+    <div class="panel" id="story">로딩 중...</div>
+
+    <div class="panel" id="status">
+      <div class="stat-block">
+        <h3>파트너</h3>
+        <div id="partner-info">-</div>
+        <div class="hp-bar"><div class="hp-fill" id="partner-hp" style="width:100%"></div></div>
+      </div>
+      <div class="stat-block">
+        <h3>문장</h3>
+        <div class="crest-list" id="crests"></div>
+      </div>
+    </div>
+
+    <div class="panel" id="battle-area">
+      <div class="battle-row">
+        <div class="digimon-card" id="ally-card">
+          <img id="ally-img" src="" alt="">
+          <div class="name" id="ally-name">-</div>
+          <div class="stage" id="ally-stage">-</div>
+          <div class="hp-bar"><div class="hp-fill" id="ally-hp-bar" style="width:100%"></div></div>
+        </div>
+        <div style="font-size:1.4rem;color:var(--muted)">VS</div>
+        <div class="digimon-card" id="enemy-card">
+          <img id="enemy-img" src="" alt="">
+          <div class="name enemy-name" id="enemy-name">-</div>
+          <div class="stage" id="enemy-stage">-</div>
+          <div class="hp-bar"><div class="hp-fill low" id="enemy-hp-bar" style="width:100%"></div></div>
+        </div>
+      </div>
+      <div id="log"></div>
+    </div>
+
+    <div id="actions"></div>
+  </div>
+
+  <script>
+    // ========== 이미지 URL (Wikimon Bandai reference) ==========
+    const IMG = {
+      Agumon: "https://wikimon.net/images/thumb/2/2e/Agumon_b.jpg/200px-Agumon_b.jpg",
+      Greymon: "https://wikimon.net/images/thumb/8/8a/Greymon_b.jpg/200px-Greymon_b.jpg",
+      MetalGreymon: "https://wikimon.net/images/thumb/1/1e/MetalGreymon_b.jpg/200px-MetalGreymon_b.jpg",
+      WarGreymon: "https://wikimon.net/images/thumb/4/4a/WarGreymon_b.jpg/200px-WarGreymon_b.jpg",
+      Gabumon: "https://wikimon.net/images/thumb/9/9e/Gabumon_b.jpg/200px-Gabumon_b.jpg",
+      Garurumon: "https://wikimon.net/images/thumb/0/0a/Garurumon_b.jpg/200px-Garurumon_b.jpg",
+      WereGarurumon: "https://wikimon.net/images/thumb/5/5e/WereGarurumon_b.jpg/200px-WereGarurumon_b.jpg",
+      MetalGarurumon: "https://wikimon.net/images/thumb/7/7a/MetalGarurumon_b.jpg/200px-MetalGarurumon_b.jpg",
+      Biyomon: "https://wikimon.net/images/thumb/3/3e/Piyomon_b.jpg/200px-Piyomon_b.jpg",
+      Birdramon: "https://wikimon.net/images/thumb/1/1a/Birdramon_b.jpg/200px-Birdramon_b.jpg",
+      Garudamon: "https://wikimon.net/images/thumb/6/6e/Garudamon_b.jpg/200px-Garudamon_b.jpg",
+      Tentomon: "https://wikimon.net/images/thumb/4/4e/Tentomon_b.jpg/200px-Tentomon_b.jpg",
+      Kabuterimon: "https://wikimon.net/images/thumb/2/2a/Kabuterimon_b.jpg/200px-Kabuterimon_b.jpg",
+      MegaKabuterimon: "https://wikimon.net/images/thumb/8/8e/MegaKabuterimon_b.jpg/200px-MegaKabuterimon_b.jpg",
+      Palmon: "https://wikimon.net/images/thumb/5/5a/Palmon_b.jpg/200px-Palmon_b.jpg",
+      Togemon: "https://wikimon.net/images/thumb/0/0e/Togemon_b.jpg/200px-Togemon_b.jpg",
+      Lillymon: "https://wikimon.net/images/thumb/3/3a/Lillymon_b.jpg/200px-Lillymon_b.jpg",
+      Gomamon: "https://wikimon.net/images/thumb/7/7e/Gomamon_b.jpg/200px-Gomamon_b.jpg",
+      Ikkakumon: "https://wikimon.net/images/thumb/9/9a/Ikkakumon_b.jpg/200px-Ikkakumon_b.jpg",
+      Zudomon: "https://wikimon.net/images/thumb/1/1e/Zudomon_b.jpg/200px-Zudomon_b.jpg",
+      Patamon: "https://wikimon.net/images/thumb/6/6a/Patamon_b.jpg/200px-Patamon_b.jpg",
+      Angemon: "https://wikimon.net/images/thumb/4/4e/Angemon_b.jpg/200px-Angemon_b.jpg",
+      MagnaAngemon: "https://wikimon.net/images/thumb/2/2a/MagnaAngemon_b.jpg/200px-MagnaAngemon_b.jpg",
+      Gatomon: "https://wikimon.net/images/thumb/8/8e/Tailmon_b.jpg/200px-Tailmon_b.jpg",
+      Angewomon: "https://wikimon.net/images/thumb/0/0a/Angewomon_b.jpg/200px-Angewomon_b.jpg",
+      Devimon: "https://wikimon.net/images/thumb/5/5e/Devimon_b.jpg/200px-Devimon_b.jpg",
+      Etemon: "https://wikimon.net/images/thumb/3/3a/Etemon_b.jpg/200px-Etemon_b.jpg",
+      Myotismon: "https://wikimon.net/images/thumb/7/7e/Vamdemon_b.jpg/200px-Vamdemon_b.jpg",
+      VenomMyotismon: "https://wikimon.net/images/thumb/1/1a/VenomVamdemon_b.jpg/200px-VenomVamdemon_b.jpg",
+      MetalSeadramon: "https://wikimon.net/images/thumb/9/9e/MetalSeadramon_b.jpg/200px-MetalSeadramon_b.jpg",
+      Puppetmon: "https://wikimon.net/images/thumb/4/4a/Pinochimon_b.jpg/200px-Pinochimon_b.jpg",
+      Machinedramon: "https://wikimon.net/images/thumb/6/6e/Mugendramon_b.jpg/200px-Mugendramon_b.jpg",
+      Piedmon: "https://wikimon.net/images/thumb/2/2a/Piemon_b.jpg/200px-Piemon_b.jpg",
+      Apocalymon: "https://wikimon.net/images/thumb/8/8e/Apocalymon_b.jpg/200px-Apocalymon_b.jpg",
+      Kuwagamon: "https://wikimon.net/images/thumb/0/0e/Kuwagamon_b.jpg/200px-Kuwagamon_b.jpg",
+      Shellmon: "https://wikimon.net/images/thumb/5/5a/Shellmon_b.jpg/200px-Shellmon_b.jpg",
+      Seadramon: "https://wikimon.net/images/thumb/3/3e/Seadramon_b.jpg/200px-Seadramon_b.jpg",
+      Unimon: "https://wikimon.net/images/thumb/7/7a/Unimon_b.jpg/200px-Unimon_b.jpg",
+      Meramon: "https://wikimon.net/images/thumb/1/1e/Meramon_b.jpg/200px-Meramon_b.jpg",
+      Andromon: "https://wikimon.net/images/thumb/9/9a/Andromon_b.jpg/200px-Andromon_b.jpg",
+      Monzaemon: "https://wikimon.net/images/thumb/4/4e/Monzaemon_b.jpg/200px-Monzaemon_b.jpg",
+      Centarumon: "https://wikimon.net/images/thumb/6/6a/Centarumon_b.jpg/200px-Centarumon_b.jpg",
+      Leomon: "https://wikimon.net/images/thumb/2/2e/Leomon_b.jpg/200px-Leomon_b.jpg",
+      Ogremon: "https://wikimon.net/images/thumb/8/8a/Ogremon_b.jpg/200px-Ogremon_b.jpg",
+      Gizamon: "https://wikimon.net/images/thumb/0/0a/Gizamon_b.jpg/200px-Gizamon_b.jpg",
+      Digitamamon: "https://wikimon.net/images/thumb/5/5e/Digitamamon_b.jpg/200px-Digitamamon_b.jpg",
+      Wizardmon: "https://wikimon.net/images/thumb/3/3a/Wizarmon_b.jpg/200px-Wizarmon_b.jpg",
+      Gatomon_evil: "https://wikimon.net/images/thumb/8/8e/Tailmon_b.jpg/200px-Tailmon_b.jpg",
+      default: "https://wikimon.net/images/thumb/2/2e/Agumon_b.jpg/200px-Agumon_b.jpg"
+    };
+
+    // ========== 데이터 ==========
+    const CRESTS = ["용기", "우정", "사랑", "지식", "성실", "희망", "빛", "기적"];
+
+    const EVOLUTIONS = {
+      Agumon: [
+        { name: "Greymon", stage: "성숙기", hp: 180, atk: 45, req: null },
+        { name: "MetalGreymon", stage: "완전체", hp: 280, atk: 70, req: "용기" },
+        { name: "WarGreymon", stage: "궁극체", hp: 400, atk: 100, req: "용기" }
+      ],
+      Gabumon: [
+        { name: "Garurumon", stage: "성숙기", hp: 170, atk: 42, req: null },
+        { name: "WereGarurumon", stage: "완전체", hp: 270, atk: 68, req: "우정" },
+        { name: "MetalGarurumon", stage: "궁극체", hp: 390, atk: 98, req: "우정" }
+      ]
+    };
+
+    // ========== 게임 상태 ==========
+    const game = {
+      chapter: 0,
+      partner: { name: "Agumon", stage: "성장기", hp: 100, maxHp: 100, atk: 25 },
+      crests: new Set(),
+      inBattle: false,
+      enemy: null,
+      log: []
+    };
+
+    // ========== UI 헬퍼 ==========
+    function setStory(text) {
+      document.getElementById("story").innerHTML = text;
+    }
+
+    function clearActions() {
+      document.getElementById("actions").innerHTML = "";
+    }
+
+    function addButton(label, onClick, cls = "") {
+      const btn = document.createElement("button");
+      btn.textContent = label;
+      if (cls) btn.className = cls;
+      btn.onclick = onClick;
+      document.getElementById("actions").appendChild(btn);
+    }
+
+    function updateStatus() {
+      const p = game.partner;
+      document.getElementById("partner-info").textContent =
+        `${p.name} (${p.stage})  HP ${p.hp}/${p.maxHp}  ATK ${p.atk}`;
+      const pct = Math.max(0, (p.hp / p.maxHp) * 100);
+      const bar = document.getElementById("partner-hp");
+      bar.style.width = pct + "%";
+      bar.classList.toggle("low", pct < 30);
+
+      const crestEl = document.getElementById("crests");
+      crestEl.innerHTML = "";
+      CRESTS.forEach(c => {
+        const span = document.createElement("span");
+        span.className = "crest" + (game.crests.has(c) ? " owned" : "");
+        span.textContent = c;
+        crestEl.appendChild(span);
+      });
+    }
+
+    function showBattle(show) {
+      document.getElementById("battle-area").style.display = show ? "flex" : "none";
+      game.inBattle = show;
+    }
+
+    function logMsg(msg) {
+      game.log.push(msg);
+      if (game.log.length > 8) game.log.shift();
+      document.getElementById("log").innerHTML = game.log.join("<br>");
+    }
+
+    function updateBattleUI() {
+      const a = game.partner;
+      const e = game.enemy;
+      document.getElementById("ally-img").src = IMG[a.name] || IMG.default;
+      document.getElementById("ally-name").textContent = a.name;
+      document.getElementById("ally-stage").textContent = a.stage;
+      const ap = Math.max(0, (a.hp / a.maxHp) * 100);
+      document.getElementById("ally-hp-bar").style.width = ap + "%";
+      document.getElementById("ally-hp-bar").classList.toggle("low", ap < 30);
+
+      document.getElementById("enemy-img").src = IMG[e.name] || IMG.default;
+      document.getElementById("enemy-name").textContent = e.name;
+      document.getElementById("enemy-stage").textContent = e.stage || "";
+      const ep = Math.max(0, (e.hp / e.maxHp) * 100);
+      document.getElementById("enemy-hp-bar").style.width = ep + "%";
+    }
+
+    // ========== 전투 ==========
+    function startBattle(enemy, onWin) {
+      game.enemy = { ...enemy, maxHp: enemy.hp };
+      game.log = [];
+      showBattle(true);
+      updateBattleUI();
+      logMsg(`${enemy.name}이(가) 나타났다!`);
+      clearActions();
+      addButton("공격", () => playerAttack(onWin), "primary");
+      addButton("진화 시도", () => tryEvolve(onWin));
+      if (game.crests.size > 0) {
+        addButton("문장 사용", () => useCrest(onWin), "success");
+      }
+    }
+
+    function playerAttack(onWin) {
+      if (!game.inBattle) return;
+      const dmg = game.partner.atk + Math.floor(Math.random() * 10);
+      game.enemy.hp -= dmg;
+      logMsg(`${game.partner.name}의 공격! ${dmg} 데미지`);
+      updateBattleUI();
+      if (game.enemy.hp <= 0) {
+        logMsg(`${game.enemy.name}을(를) 쓰러뜨렸다!`);
+        endBattle(true, onWin);
+        return;
+      }
+      enemyTurn(onWin);
+    }
+
+    function enemyTurn(onWin) {
+      const dmg = game.enemy.atk + Math.floor(Math.random() * 8);
+      game.partner.hp = Math.max(0, game.partner.hp - dmg);
+      logMsg(`${game.enemy.name}의 공격! ${dmg} 데미지`);
+      updateStatus();
+      updateBattleUI();
+      if (game.partner.hp <= 0) {
+        logMsg("파트너가 쓰러졌다...");
+        endBattle(false, onWin);
+      }
+    }
+
+    function tryEvolve(onWin) {
+      const evoList = EVOLUTIONS[game.partner.name] || EVOLUTIONS.Agumon;
+      // find next evolution
+      let next = null;
+      for (const e of evoList) {
+        if (e.name === game.partner.name) continue;
+        if (e.req && !game.crests.has(e.req)) continue;
+        // simple progression by stage order
+        const stages = ["성장기", "성숙기", "완전체", "궁극체"];
+        const curIdx = stages.indexOf(game.partner.stage);
+        const nextIdx = stages.indexOf(e.stage);
+        if (nextIdx === curIdx + 1) {
+          next = e;
+          break;
+        }
+      }
+      // if already ultimate or no match, try force next available
+      if (!next) {
+        for (const e of evoList) {
+          if (e.name !== game.partner.name && (!e.req || game.crests.has(e.req))) {
+            next = e;
+            break;
+          }
+        }
+      }
+      if (!next) {
+        logMsg("지금은 진화할 수 없다...");
+        return;
+      }
+      game.partner.name = next.name;
+      game.partner.stage = next.stage;
+      game.partner.maxHp = next.hp;
+      game.partner.hp = next.hp;
+      game.partner.atk = next.atk;
+      logMsg(`진화! ${next.name}(${next.stage})로 진화했다!`);
+      updateStatus();
+      updateBattleUI();
+    }
+
+    function useCrest(onWin) {
+      if (game.crests.size === 0) return;
+      const heal = 40 + Math.floor(Math.random() * 20);
+      game.partner.hp = Math.min(game.partner.maxHp, game.partner.hp + heal);
+      logMsg(`문장의 힘으로 HP ${heal} 회복!`);
+      updateStatus();
+      updateBattleUI();
+      enemyTurn(onWin);
+    }
+
+    function endBattle(won, onWin) {
+      game.inBattle = false;
+      clearActions();
+      if (won) {
+        addButton("계속", () => {
+          showBattle(false);
+          onWin && onWin();
+        }, "primary");
+      } else {
+        setStory(`전투에서 패배했다...
+
+다시 도전하려면 페이지를 새로고침하세요.`);
+        addButton("처음부터 다시", () => location.reload(), "primary");
+      }
+    }
+
+    // ========== 스토리 챕터 ==========
+    const chapters = [
+      // 0: 시작
+      () => {
+        setStory(`여름 캠프장. 하늘에서 이상한 장치가 떨어진다.
+
+태일, 아구몬과 함께 디지털 월드로 향한다.
+
+<span class="highlight">파일섬</span>에 도착했다.`);
+        clearActions();
+        addButton("섬을 탐색한다", () => {
+          game.chapter = 1;
+          runChapter();
+        }, "primary");
+      },
+
+      // 1: 파일섬 - 쿠와가몬
+      () => {
+        setStory(`숲을 걷던 중 거대한 곤충 디지몬이 나타난다.
+
+<span class="enemy-name">쿠와가몬</span>이 공격해 온다!`);
+        clearActions();
+        addButton("전투 시작", () => {
+          startBattle(
+            { name: "Kuwagamon", stage: "성숙기", hp: 90, atk: 20 },
+            () => {
+              setStory(`쿠와가몬을 물리쳤다!
+
+아구몬이 성장의 기운을 느낀다.`);
+              clearActions();
+              addButton("계속 전진", () => { game.chapter = 2; runChapter(); }, "primary");
+            }
+          );
+        }, "primary");
+      },
+
+      // 2: 쉘몬 & 시드라몬
+      () => {
+        setStory(`해변에서 <span class="enemy-name">쉘몬</span>이 나타난다.`);
+        clearActions();
+        addButton("전투", () => {
+          startBattle(
+            { name: "Shellmon", stage: "성숙기", hp: 110, atk: 22 },
+            () => {
+              setStory(`쉘몬을 쓰러뜨렸다. 바다 쪽으로 나아가자
+<span class="enemy-name">시드라몬</span>이 나타난다!`);
+              clearActions();
+              addButton("시드라몬과 전투", () => {
+                startBattle(
+                  { name: "Seadramon", stage: "성숙기", hp: 120, atk: 25 },
+                  () => {
+                    setStory(`시드라몬도 물리쳤다.
+
+섬 중앙의 산으로 향한다.`);
+                    clearActions();
+                    addButton("산으로 이동", () => { game.chapter = 3; runChapter(); }, "primary");
+                  }
+                );
+              }, "primary");
+            }
+          );
+        }, "primary");
+      },
+
+      // 3: 메라몬 & 안드로몬
+      () => {
+        setStory(`화산 지대. <span class="enemy-name">메라몬</span>이 길을 막는다.`);
+        clearActions();
+        addButton("전투", () => {
+          startBattle(
+            { name: "Meramon", stage: "성숙기", hp: 130, atk: 28 },
+            () => {
+              setStory(`메라몬을 물리쳤다. 공장 유적에서
+<span class="enemy-name">안드로몬</span>이 폭주한다.`);
+              clearActions();
+              addButton("안드로몬과 전투", () => {
+                startBattle(
+                  { name: "Andromon", stage: "완전체", hp: 160, atk: 32 },
+                  () => {
+                    setStory(`안드로몬을 진정시켰다.
+
+<span class="highlight">용기</span>의 문장을 손에 넣었다!`);
+                    game.crests.add("용기");
+                    updateStatus();
+                    clearActions();
+                    addButton("다음으로", () => { game.chapter = 4; runChapter(); }, "primary");
+                  }
+                );
+              }, "primary");
+            }
+          );
+        }, "primary");
+      },
+
+      // 4: 데비몬
+      () => {
+        setStory(`파일섬의 어둠. <span class="enemy-name">데비몬</span>이 아이들을 노린다.
+
+아구몬이 진화할 준비가 되어 있다.`);
+        clearActions();
+        addButton("데비몬과 결전", () => {
+          // force evolve to Greymon before fight
+          game.partner = { name: "Greymon", stage: "성숙기", hp: 180, maxHp: 180, atk: 45 };
+          updateStatus();
+          startBattle(
+            { name: "Devimon", stage: "성숙기", hp: 200, atk: 40 },
+            () => {
+              setStory(`데비몬을 물리쳤다!
+
+파일섬의 어둠이 걷힌다.
+서버 대륙으로 향한다.`);
+              clearActions();
+              addButton("서버 대륙으로", () => { game.chapter = 5; runChapter(); }, "primary");
+            }
+          );
+        }, "primary");
+      },
+
+      // 5: 에테몬
+      () => {
+        setStory(`서버 대륙. 독재자 <span class="enemy-name">에테몬</span>이 네트워크를 장악하고 있다.
+
+<span class="highlight">우정</span>의 문장을 찾았다!`);
+        game.crests.add("우정");
+        updateStatus();
+        clearActions();
+        addButton("에테몬과 전투", () => {
+          startBattle(
+            { name: "Etemon", stage: "완전체", hp: 250, atk: 50 },
+            () => {
+              setStory(`에테몬을 쓰러뜨렸다!
+
+그레이몬이 메탈그레이몬으로 진화한다.`);
+              game.partner = { name: "MetalGreymon", stage: "완전체", hp: 280, maxHp: 280, atk: 70 };
+              updateStatus();
+              clearActions();
+              addButton("현실 세계로", () => { game.chapter = 6; runChapter(); }, "primary");
+            }
+          );
+        }, "primary");
+      },
+
+      // 6: 묘티스몬
+      () => {
+        setStory(`현실 세계. 밤의 지배자 <span class="enemy-name">묘티스몬</span>이 아이들을 쫓는다.
+
+<span class="highlight">빛</span>의 문장을 얻었다!`);
+        game.crests.add("빛");
+        updateStatus();
+        clearActions();
+        addButton("묘티스몬과 전투", () => {
+          startBattle(
+            { name: "Myotismon", stage: "완전체", hp: 300, atk: 55 },
+            () => {
+              setStory(`묘티스몬이 베놈묘티스몬으로 진화한다!
+
+궁극의 싸움이 시작된다.`);
+              clearActions();
+              addButton("베놈묘티스몬과 결전", () => {
+                startBattle(
+                  { name: "VenomMyotismon", stage: "궁극체", hp: 380, atk: 70 },
+                  () => {
+                    setStory(`베놈묘티스몬을 물리쳤다!
+
+디지털 월드로 다시 돌아간다.`);
+                    clearActions();
+                    addButton("다크 마스터즈로", () => { game.chapter = 7; runChapter(); }, "primary");
+                  }
+                );
+              }, "primary");
+            }
+          );
+        }, "primary");
+      },
+
+      // 7: 다크 마스터즈
+      () => {
+        setStory(`다크 마스터즈가 디지털 월드를 지배하고 있다.
+
+메탈시드라몬, 퍼펫몬, 머쉰드라몬, 피에드몬...
+
+하나씩 쓰러뜨려야 한다.`);
+        clearActions();
+        addButton("메탈시드라몬", () => {
+          startBattle(
+            { name: "MetalSeadramon", stage: "궁극체", hp: 320, atk: 65 },
+            () => {
+              setStory(`메탈시드라몬을 물리쳤다.`);
+              clearActions();
+              addButton("퍼펫몬", () => {
+                startBattle(
+                  { name: "Puppetmon", stage: "궁극체", hp: 300, atk: 60 },
+                  () => {
+                    setStory(`퍼펫몬을 물리쳤다.`);
+                    clearActions();
+                    addButton("머쉰드라몬", () => {
+                      startBattle(
+                        { name: "Machinedramon", stage: "궁극체", hp: 350, atk: 75 },
+                        () => {
+                          setStory(`머쉰드라몬을 물리쳤다.`);
+                          clearActions();
+                          addButton("피에드몬", () => {
+                            startBattle(
+                              { name: "Piedmon", stage: "궁극체", hp: 360, atk: 80 },
+                              () => {
+                                setStory(`피에드몬을 물리쳤다!
+
+<span class="highlight">용기</span>의 힘으로 워그레이몬으로 진화!`);
+                                game.partner = { name: "WarGreymon", stage: "궁극체", hp: 400, maxHp: 400, atk: 100 };
+                                updateStatus();
+                                clearActions();
+                                addButton("최종 보스에게", () => { game.chapter = 8; runChapter(); }, "primary");
+                              }
+                            );
+                          }, "primary");
+                        }
+                      );
+                    }, "primary");
+                  }
+                );
+              }, "primary");
+            }
+          );
+        }, "primary");
+      },
+
+      // 8: 아포칼립몬
+      () => {
+        setStory(`모든 악의 집합체. <span class="enemy-name">아포칼립몬</span>이 나타난다.
+
+아이들의 희망과 우정, 용기가 하나 된다.`);
+        clearActions();
+        addButton("최종 결전", () => {
+          startBattle(
+            { name: "Apocalymon", stage: "궁극체", hp: 500, atk: 90 },
+            () => {
+              setStory(`아포칼립몬을 물리쳤다!
+
+디지털 월드에 평화가 찾아온다.
+
+태일과 ${game.partner.name} (${game.partner.stage})
+
+<span class="highlight">디지몬 어드벤처 - CLEAR!</span>
+
+원작의 핵심은 아이들이 각자의 약점과 감정을
+마주하며 성장하는 모습입니다.
+플레이해 주셔서 감사합니다!
+      `);
+              clearActions();
+              addButton("처음부터 다시 하기", () => location.reload(), "primary");
+            }
+          );
+        }, "primary");
+      }
+    ];
+
+    function runChapter() {
+      updateStatus();
+      if (chapters[game.chapter]) chapters[game.chapter]();
+      else setStory("스토리가 끝났습니다.");
+    }
+
+    function startGame() {
+      game.chapter = 0;
+      game.partner = { name: "Agumon", stage: "성장기", hp: 100, maxHp: 100, atk: 25 };
+      game.crests = new Set();
+      game.inBattle = false;
+      game.enemy = null;
+      game.log = [];
+      showBattle(false);
+      updateStatus();
+      runChapter();
+    }
+
+    startGame();
+  </script>
 </body>
 </html>
